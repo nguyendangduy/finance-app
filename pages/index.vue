@@ -99,7 +99,7 @@ import type { FormInstance, FormRules } from "element-plus";
 import { createClient } from '@supabase/supabase-js';
 
 const runtimeConfig = useRuntimeConfig()
-const supabase = createClient(`${runtimeConfig.public.supabaseUrl}`, `${runtimeConfig.public.supabaseKey}`,{
+const supabase = createClient(`${runtimeConfig.public.supabase.url}`, `${runtimeConfig.public.supabase.key}`,{
   auth: {
     persistSession: false
   }
@@ -173,20 +173,26 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
   loading.value = true;
 
   if (!formEl) return;
-  await formEl.validate((valid, fields) => {
+  await formEl.validate(async (valid, fields) => {
     if (valid) {
-      const data = {
+      const formData = {
         ...formInline,
       };
-
-      tableData.push(data);
-
+      
+    const { data, error } = await supabase
+      .from('finance_log')
+      .insert([
+        formData
+      ])
+      .select()
+      
       ElMessage({
         message: "Đã thêm thành công",
         type: "success",
       });
 
       formEl.resetFields();
+      getFinanceLog();
       loading.value = false;
     } else {
       loading.value = false;
