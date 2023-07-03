@@ -1,4 +1,5 @@
 <template>
+  {{ finance_log }}
   <el-main>
     <el-card class="mb-5">
       <el-form
@@ -95,6 +96,14 @@
 
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from "element-plus";
+import { createClient } from '@supabase/supabase-js';
+
+const runtimeConfig = useRuntimeConfig()
+const supabase = createClient(`${runtimeConfig.public.supabaseUrl}`, `${runtimeConfig.public.supabaseKey}`,{
+  auth: {
+    persistSession: false
+  }
+});
 
 interface RuleForm {
   content: string;
@@ -186,7 +195,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
   });
 };
 
-const tableData: any = reactive([]);
+const tableData: any = ref([]);
 
 const filterType = (value: string, row: any) => {
   return row.type === value;
@@ -202,6 +211,20 @@ const genType = ($value: string) => {
       return "VCB";
   }
 };
+
+async function getFinanceLog() {
+  loading.value = true;
+  
+  const { data } = await supabase.from('finance_log').select()
+  tableData.value = data
+
+  loading.value = false;
+}
+
+onMounted(() => {
+  getFinanceLog()
+})
+
 </script>
 
 <style scoped></style>
