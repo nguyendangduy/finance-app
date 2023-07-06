@@ -1,8 +1,47 @@
 <template>
-  {{ finance_log }}
   <el-main>
     <el-card class="mb-5">
-      <el-form
+      <el-button type="primary" @click="dialogFormVisible = true">
+        Thêm thống kê
+      </el-button>
+    </el-card>
+    <el-card v-loading="loading">
+      <el-table :data="tableData" style="width: 100%">
+        <el-table-column fixed prop="date" label="Thời gian" width="200" >
+          <template #default="scope">
+            {{ moment(scope.row.date).format('DD/MM/YYYY')  }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="content" label="Nội dung" >
+          <template #default="scope">
+            <button @click="editContent(scope.row)">{{ scope.row.content }}</button>
+          </template>
+        </el-table-column>
+        <el-table-column prop="money" label="Số tiền">
+          <template #default="scope">
+            {{ scope.row.money.toLocaleString("it-IT") }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="type"
+          label="Loại"
+          width="100"
+          filter-placement="bottom-end"
+        >
+          <template #default="scope">
+            <el-tag
+              :type="scope.row.type === 'Ví' ? '' : 'success'"
+              disable-transitions
+              >{{ genType(scope.row.type) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
+  </el-main>
+
+  <el-dialog v-model="dialogFormVisible" @close="closeDialog(ruleFormRef)">
+    <el-form
         :inline="true"
         :model="formInline"
         ref="ruleFormRef"
@@ -21,7 +60,6 @@
             type="date"
             placeholder="Chọn ngày"
             format="DD/MM/YYYY"
-            value-format="DD/MM/YYYY"
             clearable
           />
         </el-form-item>
@@ -49,61 +87,26 @@
             clearable
           />
         </el-form-item>
-        <el-form-item>
-          <el-button
-            type="primary"
-            @click="onSubmit(ruleFormRef)"
-            :loading="loading"
-          >
-            Xác nhận
-          </el-button>
-        </el-form-item>
       </el-form>
-    </el-card>
-    <el-card v-loading="loading">
-      <el-table :data="tableData" style="width: 100%">
-        <el-table-column fixed prop="date" label="Thời gian" width="200" />
-        <el-table-column prop="content" label="Nội dung" />
-        <el-table-column prop="money" label="Số tiền">
-          <template #default="scope">
-            {{ scope.row.money.toLocaleString("it-IT") }}
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="type"
-          label="Loại"
-          width="100"
-          :filters="[
-            { text: 'Ví', value: 'wallet' },
-            { text: 'Momo', value: 'momo' },
-            { text: 'VCB', value: 'vcb' },
-          ]"
-          :filter-method="filterType"
-          filter-placement="bottom-end"
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">Huỷ</el-button>
+        <el-button 
+          type="primary" 
+          @click="onSubmit(ruleFormRef)"
+          :loading="loading"
         >
-          <template #default="scope">
-            <el-tag
-              :type="scope.row.type === 'Ví' ? '' : 'success'"
-              disable-transitions
-              >{{ genType(scope.row.type) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
-  </el-main>
+          Xác nhận
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from "element-plus";
 import { createClient } from '@supabase/supabase-js';
-
-const runtimeConfig = useRuntimeConfig()
-const supabase = createClient(`${runtimeConfig.public.supabase.url}`, `${runtimeConfig.public.supabase.key}`,{
-  auth: {
-    persistSession: false
-  }
-});
+import moment from 'moment';
 
 interface RuleForm {
   content: string;
@@ -111,15 +114,6 @@ interface RuleForm {
   money: number;
   type: string;
 }
-
-const formInline = reactive<RuleForm>({
-  content: "",
-  date: "",
-  money: 0,
-  type: "",
-});
-
-const loading = ref(false);
 
 const options = [
   {
@@ -136,7 +130,35 @@ const options = [
   },
 ];
 
+const genType = ($value: string) => {
+  switch ($value) {
+    case "wallet":
+      return "Ví";
+    case "momo":
+      return "Momo";
+    case "vcb":
+      return "VCB";
+  }
+};
+
 const ruleFormRef = ref<FormInstance>();
+const tableData: any = ref([]);
+const loading = ref(false);
+const dialogFormVisible = ref(false)
+
+const formInline = reactive<RuleForm>({
+  content: "",
+  date: moment().format(),
+  money: 0,
+  type: "",
+});
+
+const runtimeConfig = useRuntimeConfig()
+const supabase = createClient(`${runtimeConfig.public.supabase.url}`, `${runtimeConfig.public.supabase.key}`,{
+  auth: {
+    persistSession: false
+  }
+});
 
 const checkMoney = (rule: any, value: any, callback: any) => {
   if (!value) {
@@ -185,7 +207,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
         formData
       ])
       .select()
-      
+
       ElMessage({
         message: "Đã thêm thành công",
         type: "success",
@@ -193,29 +215,14 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
 
       formEl.resetFields();
       getFinanceLog();
+
+      dialogFormVisible.value = false
       loading.value = false;
     } else {
       loading.value = false;
       console.log("error submit!", fields);
     }
   });
-};
-
-const tableData: any = ref([]);
-
-const filterType = (value: string, row: any) => {
-  return row.type === value;
-};
-
-const genType = ($value: string) => {
-  switch ($value) {
-    case "wallet":
-      return "Ví";
-    case "momo":
-      return "Momo";
-    case "vcb":
-      return "VCB";
-  }
 };
 
 async function getFinanceLog() {
@@ -225,6 +232,22 @@ async function getFinanceLog() {
   tableData.value = data
 
   loading.value = false;
+}
+
+const editContent = (data: RuleForm) => {
+  formInline.content = data.content
+  formInline.date = data.date
+  formInline.money = data.money
+  formInline.type = data.type
+
+  dialogFormVisible.value = true
+}
+
+const closeDialog = (formEl: FormInstance | undefined) => {
+  if(!formEl) return
+
+  dialogFormVisible.value = false
+  formEl.resetFields()
 }
 
 onMounted(() => {
