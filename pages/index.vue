@@ -7,17 +7,17 @@
     </el-card>
     <el-card v-loading="loading">
       <el-table :data="tableData" style="width: 100%">
-        <el-table-column fixed prop="date" label="Thời gian" width="200" >
+        <el-table-column fixed prop="date" label="Thời gian" width="130" >
           <template #default="scope">
             {{ moment(scope.row.date).format('DD/MM/YYYY')  }}
           </template>
         </el-table-column>
-        <el-table-column prop="content" label="Nội dung" >
+        <el-table-column prop="content" label="Nội dung" width="180">
           <template #default="scope">
             <button @click="editContent(scope.row)">{{ scope.row.content }}</button>
           </template>
         </el-table-column>
-        <el-table-column prop="money" label="Số tiền">
+        <el-table-column prop="money" label="Số tiền" width="300">
           <template #default="scope">
             {{ scope.row.money.toLocaleString("it-IT") }}
           </template>
@@ -25,7 +25,6 @@
         <el-table-column
           prop="type"
           label="Loại"
-          width="100"
           filter-placement="bottom-end"
         >
           <template #default="scope">
@@ -40,10 +39,11 @@
     </el-card>
   </el-main>
 
-  <el-dialog v-model="dialogFormVisible" @close="closeDialog(ruleFormRef)">
+  <el-dialog v-model="dialogFormVisible" @close="closeDialog(ruleFormRef)" width="500px" class="dialog-custom">
     <el-form
-        :inline="true"
+        label-position="top"
         :model="formInline"
+        label-width="90px"
         ref="ruleFormRef"
         :rules="rules"
       >
@@ -181,7 +181,7 @@ const rules = reactive<FormRules<RuleForm>>({
   content: [
     { required: true, message: "Vui lòng nhập nội dung", trigger: "blur" },
   ],
-  money: [{ validator: checkMoney, trigger: "blur" }],
+  money: [{required: true, validator: checkMoney, trigger: "blur" }],
   type: [
     {
       required: true,
@@ -256,4 +256,13 @@ onMounted(() => {
 
 </script>
 
-<style scoped></style>
+<style>
+.el-overlay-dialog {
+  padding: 0 15px;
+}
+
+.dialog-custom {
+  max-width: 100%;
+}
+
+</style>
