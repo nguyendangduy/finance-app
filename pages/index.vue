@@ -24,12 +24,24 @@
         </el-table-column>
         <el-table-column
           prop="type"
-          label="Loại"
-          filter-placement="bottom-end"
+          label="Loại chi tiêu"
+          width="300"
         >
           <template #default="scope">
             <el-tag
-              :type="scope.row.type === 'Ví' ? '' : 'success'"
+              :type="'success'"
+              disable-transitions
+              >{{ genSpendingType(scope.row.spendingType) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="type"
+          label="Loại thanh toán"
+        >
+          <template #default="scope">
+            <el-tag
+              :type="'success'"
               disable-transitions
               >{{ genType(scope.row.type) }}
             </el-tag>
@@ -80,6 +92,23 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="Loại chi tiêu" prop="spendingType">
+          <el-select
+            v-model="formInline.spendingType"
+            filterable
+            allow-create
+            default-first-option
+            :reserve-keyword="false"
+            placeholder="Chọn loại chi tiêu"
+          >
+            <el-option
+              v-for="item in spendingOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="Số tiền" prop="money" style="width: 100%">
           <el-input-number
             v-model="formInline.money"
@@ -113,6 +142,7 @@ interface RuleForm {
   date: string;
   money: number;
   type: string;
+  spendingType: string;
 }
 
 const options = [
@@ -130,6 +160,25 @@ const options = [
   },
 ];
 
+const spendingOptions = [
+  {
+    value: "rent",
+    label: "Thuê nhà",
+  },
+  {
+    value: "hangout",
+    label: "Đi chơi",
+  },
+  {
+    value: "eat",
+    label: "Ăn uống",
+  },
+  {
+    value: "personal",
+    label: "Cá nhân",
+  },
+];
+
 const genType = ($value: string) => {
   switch ($value) {
     case "wallet":
@@ -138,6 +187,21 @@ const genType = ($value: string) => {
       return "Momo";
     case "vcb":
       return "VCB";
+  }
+};
+
+const genSpendingType = ($value: string) => {
+  switch ($value) {
+    case "eat":
+      return "Ăn uống";
+    case "hangout":
+      return "Đi chơi";
+    case "rent":
+      return "Thuê nhà";
+    case "personal":
+      return "Cá nhân";
+    default: 
+      return "Linh tinh";
   }
 };
 
@@ -151,6 +215,7 @@ const formInline = reactive<RuleForm>({
   date: moment().format(),
   money: 0,
   type: "",
+  spendingType: ""
 });
 
 const runtimeConfig = useRuntimeConfig()
@@ -239,6 +304,7 @@ const editContent = (data: RuleForm) => {
   formInline.date = data.date
   formInline.money = data.money
   formInline.type = data.type
+  formInline.spendingType = data.spendingType
 
   dialogFormVisible.value = true
 }
