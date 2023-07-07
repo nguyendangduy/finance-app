@@ -1,133 +1,131 @@
 <template>
-  <client-only>
-    <el-main>
-      <el-card class="mb-5">
-        <el-button type="primary" @click="dialogFormVisible = true">
-          Thêm thống kê
-        </el-button>
-      </el-card>
-      <el-card v-loading="loading">
-        <el-table :data="tableData" style="width: 100%">
-          <el-table-column fixed prop="date" label="Thời gian" width="130">
-            <template #default="scope">
-              {{ moment(scope.row.date).format("DD/MM/YYYY") }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="content" label="Nội dung" width="180">
-            <template #default="scope">
-              <button @click="editContent(scope.row)">
-                {{ scope.row.content }}
-              </button>
-            </template>
-          </el-table-column>
-          <el-table-column prop="money" label="Số tiền" width="300">
-            <template #default="scope">
-              {{ scope.row.money.toLocaleString("it-IT") }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="type" label="Loại chi tiêu" width="300">
-            <template #default="scope">
-              <el-tag :type="'success'" disable-transitions
-                >{{ genSpendingType(scope.row.spendingType) }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="type" label="Loại thanh toán">
-            <template #default="scope">
-              <el-tag :type="'success'" disable-transitions
-                >{{ genType(scope.row.type) }}
-              </el-tag>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-card>
-    </el-main>
+  <el-main>
+    <el-card class="mb-5">
+      <el-button type="primary" @click="dialogFormVisible = true">
+        Thêm thống kê
+      </el-button>
+    </el-card>
+    <el-card v-loading="loading">
+      <el-table :data="tableData" style="width: 100%">
+        <el-table-column fixed prop="date" label="Thời gian" width="130">
+          <template #default="scope">
+            {{ moment(scope.row.date).format("DD/MM/YYYY") }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="content" label="Nội dung" width="180">
+          <template #default="scope">
+            <button @click="editContent(scope.row)">
+              {{ scope.row.content }}
+            </button>
+          </template>
+        </el-table-column>
+        <el-table-column prop="money" label="Số tiền" width="300">
+          <template #default="scope">
+            {{ scope.row.money.toLocaleString("it-IT") }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="type" label="Loại chi tiêu" width="300">
+          <template #default="scope">
+            <el-tag :type="'success'" disable-transitions
+              >{{ genSpendingType(scope.row.spendingType) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="type" label="Loại thanh toán">
+          <template #default="scope">
+            <el-tag :type="'success'" disable-transitions
+              >{{ genType(scope.row.type) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
+  </el-main>
 
-    <el-dialog
-      v-model="dialogFormVisible"
-      @close="closeDialog(ruleFormRef)"
-      width="500px"
-      class="dialog-custom"
+  <el-dialog
+    v-model="dialogFormVisible"
+    @close="closeDialog(ruleFormRef)"
+    width="500px"
+    class="dialog-custom"
+  >
+    <el-form
+      label-position="top"
+      :model="formInline"
+      label-width="90px"
+      ref="ruleFormRef"
+      :rules="rules"
     >
-      <el-form
-        label-position="top"
-        :model="formInline"
-        label-width="90px"
-        ref="ruleFormRef"
-        :rules="rules"
-      >
-        <el-form-item label="Nội dung" prop="content">
-          <el-input
-            v-model="formInline.content"
-            placeholder="Nội dung"
-            clearable
+      <el-form-item label="Nội dung" prop="content">
+        <el-input
+          v-model="formInline.content"
+          placeholder="Nội dung"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="Chọn ngày" prop="date">
+        <el-date-picker
+          v-model="formInline.date"
+          type="date"
+          placeholder="Chọn ngày"
+          format="DD/MM/YYYY"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="Loại" prop="type">
+        <el-select
+          v-model="formInline.type"
+          filterable
+          allow-create
+          default-first-option
+          :reserve-keyword="false"
+          placeholder="Chọn loại"
+        >
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
           />
-        </el-form-item>
-        <el-form-item label="Chọn ngày" prop="date">
-          <el-date-picker
-            v-model="formInline.date"
-            type="date"
-            placeholder="Chọn ngày"
-            format="DD/MM/YYYY"
-            clearable
+        </el-select>
+      </el-form-item>
+      <el-form-item label="Loại chi tiêu" prop="spendingType">
+        <el-select
+          v-model="formInline.spendingType"
+          filterable
+          allow-create
+          default-first-option
+          :reserve-keyword="false"
+          placeholder="Chọn loại chi tiêu"
+        >
+          <el-option
+            v-for="item in spendingOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
           />
-        </el-form-item>
-        <el-form-item label="Loại" prop="type">
-          <el-select
-            v-model="formInline.type"
-            filterable
-            allow-create
-            default-first-option
-            :reserve-keyword="false"
-            placeholder="Chọn loại"
-          >
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="Loại chi tiêu" prop="spendingType">
-          <el-select
-            v-model="formInline.spendingType"
-            filterable
-            allow-create
-            default-first-option
-            :reserve-keyword="false"
-            placeholder="Chọn loại chi tiêu"
-          >
-            <el-option
-              v-for="item in spendingOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="Số tiền" prop="money" style="width: 100%">
-          <el-input-number
-            v-model="formInline.money"
-            placeholder="Số tiền"
-            clearable
-          />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">Huỷ</el-button>
-          <el-button
-            type="primary"
-            @click="onSubmit(ruleFormRef)"
-            :loading="loading"
-          >
-            Xác nhận
-          </el-button>
-        </span>
-      </template>
-    </el-dialog>
-  </client-only>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="Số tiền" prop="money" style="width: 100%">
+        <el-input-number
+          v-model="formInline.money"
+          placeholder="Số tiền"
+          clearable
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">Huỷ</el-button>
+        <el-button
+          type="primary"
+          @click="onSubmit(ruleFormRef)"
+          :loading="loading"
+        >
+          Xác nhận
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
