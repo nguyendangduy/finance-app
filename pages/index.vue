@@ -1,59 +1,55 @@
 <template>
   <client-only>
-  <el-main>
-    <el-card class="mb-5">
-      <el-button type="primary" @click="dialogFormVisible = true">
-        Thêm thống kê
-      </el-button>
-    </el-card>
-    <el-card v-loading="loading">
-      <el-table :data="tableData" style="width: 100%">
-        <el-table-column fixed prop="date" label="Thời gian" width="130" >
-          <template #default="scope">
-            {{ moment(scope.row.date).format('DD/MM/YYYY')  }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="content" label="Nội dung" width="180">
-          <template #default="scope">
-            <button @click="editContent(scope.row)">{{ scope.row.content }}</button>
-          </template>
-        </el-table-column>
-        <el-table-column prop="money" label="Số tiền" width="300">
-          <template #default="scope">
-            {{ scope.row.money.toLocaleString("it-IT") }}
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="type"
-          label="Loại chi tiêu"
-          width="300"
-        >
-          <template #default="scope">
-            <el-tag
-              :type="'success'"
-              disable-transitions
-              >{{ genSpendingType(scope.row.spendingType) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="type"
-          label="Loại thanh toán"
-        >
-          <template #default="scope">
-            <el-tag
-              :type="'success'"
-              disable-transitions
-              >{{ genType(scope.row.type) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
-  </el-main>
+    <el-main>
+      <el-card class="mb-5">
+        <el-button type="primary" @click="dialogFormVisible = true">
+          Thêm thống kê
+        </el-button>
+      </el-card>
+      <el-card v-loading="loading">
+        <el-table :data="tableData" style="width: 100%">
+          <el-table-column fixed prop="date" label="Thời gian" width="130">
+            <template #default="scope">
+              {{ moment(scope.row.date).format("DD/MM/YYYY") }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="content" label="Nội dung" width="180">
+            <template #default="scope">
+              <button @click="editContent(scope.row)">
+                {{ scope.row.content }}
+              </button>
+            </template>
+          </el-table-column>
+          <el-table-column prop="money" label="Số tiền" width="300">
+            <template #default="scope">
+              {{ scope.row.money.toLocaleString("it-IT") }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="type" label="Loại chi tiêu" width="300">
+            <template #default="scope">
+              <el-tag :type="'success'" disable-transitions
+                >{{ genSpendingType(scope.row.spendingType) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="type" label="Loại thanh toán">
+            <template #default="scope">
+              <el-tag :type="'success'" disable-transitions
+                >{{ genType(scope.row.type) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-card>
+    </el-main>
 
-  <el-dialog v-model="dialogFormVisible" @close="closeDialog(ruleFormRef)" width="500px" class="dialog-custom">
-    <el-form
+    <el-dialog
+      v-model="dialogFormVisible"
+      @close="closeDialog(ruleFormRef)"
+      width="500px"
+      class="dialog-custom"
+    >
+      <el-form
         label-position="top"
         :model="formInline"
         label-width="90px"
@@ -118,26 +114,26 @@
           />
         </el-form-item>
       </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">Huỷ</el-button>
-        <el-button 
-          type="primary" 
-          @click="onSubmit(ruleFormRef)"
-          :loading="loading"
-        >
-          Xác nhận
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
-</client-only>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">Huỷ</el-button>
+          <el-button
+            type="primary"
+            @click="onSubmit(ruleFormRef)"
+            :loading="loading"
+          >
+            Xác nhận
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </client-only>
 </template>
 
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from "element-plus";
-import { createClient } from '@supabase/supabase-js';
-import moment from 'moment';
+import { createClient } from "@supabase/supabase-js";
+import moment from "moment";
 
 interface RuleForm {
   content: string;
@@ -202,7 +198,7 @@ const genSpendingType = ($value: string) => {
       return "Thuê nhà";
     case "personal":
       return "Cá nhân";
-    default: 
+    default:
       return "Linh tinh";
   }
 };
@@ -210,22 +206,26 @@ const genSpendingType = ($value: string) => {
 const ruleFormRef = ref<FormInstance>();
 const tableData: any = ref([]);
 const loading = ref(false);
-const dialogFormVisible = ref(false)
+const dialogFormVisible = ref(false);
 
 const formInline = reactive<RuleForm>({
   content: "",
   date: moment().format(),
   money: 0,
   type: "",
-  spendingType: ""
+  spendingType: "",
 });
 
-const runtimeConfig = useRuntimeConfig()
-const supabase = createClient(`${runtimeConfig.public.supabase.url}`, `${runtimeConfig.public.supabase.key}`,{
-  auth: {
-    persistSession: false
+const runtimeConfig = useRuntimeConfig();
+const supabase = createClient(
+  `${runtimeConfig.public.supabase.url}`,
+  `${runtimeConfig.public.supabase.key}`,
+  {
+    auth: {
+      persistSession: false,
+    },
   }
-});
+);
 
 const checkMoney = (rule: any, value: any, callback: any) => {
   if (!value) {
@@ -248,7 +248,7 @@ const rules = reactive<FormRules<RuleForm>>({
   content: [
     { required: true, message: "Vui lòng nhập nội dung", trigger: "blur" },
   ],
-  money: [{required: true, validator: checkMoney, trigger: "blur" }],
+  money: [{ required: true, validator: checkMoney, trigger: "blur" }],
   type: [
     {
       required: true,
@@ -267,13 +267,11 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
       const formData = {
         ...formInline,
       };
-      
-    const { data, error } = await supabase
-      .from('finance_log')
-      .insert([
-        formData
-      ])
-      .select()
+
+      const { data, error } = await supabase
+        .from("finance_log")
+        .insert([formData])
+        .select();
 
       ElMessage({
         message: "Đã thêm thành công",
@@ -283,7 +281,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
       formEl.resetFields();
       getFinanceLog();
 
-      dialogFormVisible.value = false
+      dialogFormVisible.value = false;
       loading.value = false;
     } else {
       loading.value = false;
@@ -294,34 +292,33 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
 
 async function getFinanceLog() {
   loading.value = true;
-  
-  const { data } = await supabase.from('finance_log').select()
-  tableData.value = data
+
+  const { data } = await supabase.from("finance_log").select();
+  tableData.value = data;
 
   loading.value = false;
 }
 
 const editContent = (data: RuleForm) => {
-  formInline.content = data.content
-  formInline.date = data.date
-  formInline.money = data.money
-  formInline.type = data.type
-  formInline.spendingType = data.spendingType
+  formInline.content = data.content;
+  formInline.date = data.date;
+  formInline.money = data.money;
+  formInline.type = data.type;
+  formInline.spendingType = data.spendingType;
 
-  dialogFormVisible.value = true
-}
+  dialogFormVisible.value = true;
+};
 
 const closeDialog = (formEl: FormInstance | undefined) => {
-  if(!formEl) return
+  if (!formEl) return;
 
-  dialogFormVisible.value = false
-  formEl.resetFields()
-}
+  dialogFormVisible.value = false;
+  formEl.resetFields();
+};
 
 onMounted(() => {
-  getFinanceLog()
-})
-
+  getFinanceLog();
+});
 </script>
 
 <style>
@@ -332,5 +329,4 @@ onMounted(() => {
 .dialog-custom {
   max-width: 100%;
 }
-
 </style>
