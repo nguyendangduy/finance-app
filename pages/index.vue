@@ -1,4 +1,5 @@
 <template>
+  <client-only>
   <el-main>
     <el-card class="mb-5">
       <el-button type="primary" @click="dialogFormVisible = true">
@@ -130,6 +131,7 @@
       </span>
     </template>
   </el-dialog>
+</client-only>
 </template>
 
 <script lang="ts" setup>
