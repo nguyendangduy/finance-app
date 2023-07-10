@@ -332,11 +332,17 @@ const closeDialog = (formEl: FormInstance | undefined) => {
 
   dialogFormVisible.value = false;
   formEl.resetFields();
+
+  formInline.id = null;
+  formInline.content = "";
+  formInline.date = "";
+  formInline.money = 0;
+  formInline.type = "";
+  formInline.spendingType = "";
 };
 
 const openDialog = () => {
   dialogFormVisible.value = true;
-  if (formInline.id) formInline.id = null;
 };
 
 onMounted(() => {
