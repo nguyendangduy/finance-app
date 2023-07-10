@@ -19,7 +19,7 @@
         </el-table-column>
         <el-table-column prop="money" label="Số tiền" width="300">
           <template #default="scope">
-            {{ scope.row.money.toLocaleString("it-IT") }}
+            {{ scope.row.money.toLocaleString("it-IT") }} VND
           </template>
         </el-table-column>
         <el-table-column prop="type" label="Loại chi tiêu" width="300">
@@ -38,8 +38,15 @@
         </el-table-column>
       </el-table>
     </el-card>
+    <div class="mt-5">
+      <el-pagination
+        class="justify-center"
+        layout="prev, pager, next"
+        :total="fetchData.length"
+        @current-change="handleCurrentChange"
+      />
+    </div>
   </el-main>
-
   <el-dialog
     v-model="dialogFormVisible"
     @close="closeDialog(ruleFormRef)"
@@ -203,6 +210,7 @@ const genSpendingType = ($value: string) => {
 
 const ruleFormRef = ref<FormInstance>();
 const tableData: any = ref([]);
+const fetchData: any = ref([]);
 const loading = ref(false);
 const dialogFormVisible = ref(false);
 
@@ -311,7 +319,10 @@ async function getFinanceLog() {
     .from("finance_log")
     .select()
     .order("created_at", { ascending: true });
-  tableData.value = data;
+
+  fetchData.value = data;
+
+  handleCurrentChange(0)
 
   loading.value = false;
 }
@@ -343,6 +354,12 @@ const closeDialog = (formEl: FormInstance | undefined) => {
 
 const openDialog = () => {
   dialogFormVisible.value = true;
+};
+
+const handleCurrentChange = (val: number) => {
+  const start = val === 0 ? 0 : (val - 1) * 10
+  const end = start + 10
+  tableData.value = fetchData.value.slice(start, end)
 };
 
 onMounted(() => {
