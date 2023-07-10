@@ -68,6 +68,7 @@
           type="date"
           placeholder="Chọn ngày"
           format="DD/MM/YYYY"
+          value-format="YYYY/MM/DD"
           clearable
         />
       </el-form-item>
