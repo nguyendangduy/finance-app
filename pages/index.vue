@@ -1,9 +1,7 @@
 <template>
   <el-main>
     <el-card class="mb-5">
-      <el-button type="primary" @click="dialogFormVisible = true">
-        Thêm thống kê
-      </el-button>
+      <el-button type="primary" @click="openDialog"> Thêm thống kê </el-button>
     </el-card>
     <el-card v-loading="loading">
       <el-table :data="tableData" style="width: 100%">
@@ -135,6 +133,7 @@ import { createClient } from "@supabase/supabase-js";
 import moment from "moment";
 
 interface RuleForm {
+  id?: any;
   content: string;
   date: string;
   money: number;
@@ -208,6 +207,7 @@ const loading = ref(false);
 const dialogFormVisible = ref(false);
 
 const formInline = reactive<RuleForm>({
+  id: null,
   content: "",
   date: moment().format(),
   money: 0,
@@ -267,15 +267,30 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
         ...formInline,
       };
 
-      const { data, error } = await supabase
-        .from("finance_log")
-        .insert([formData])
-        .select();
+      if (formData.id) {
+        const { data, error } = await supabase
+          .from("finance_log")
+          .update(formData)
+          .eq("id", formData.id)
+          .select();
 
-      ElMessage({
-        message: "Đã thêm thành công",
-        type: "success",
-      });
+        ElMessage({
+          message: "Đã sửa thành công",
+          type: "success",
+        });
+      } else {
+        delete formData.id;
+
+        const { data, error } = await supabase
+          .from("finance_log")
+          .insert([formData])
+          .select();
+
+        ElMessage({
+          message: "Đã thêm thành công",
+          type: "success",
+        });
+      }
 
       formEl.resetFields();
       getFinanceLog();
@@ -292,13 +307,17 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
 async function getFinanceLog() {
   loading.value = true;
 
-  const { data } = await supabase.from("finance_log").select();
+  const { data } = await supabase
+    .from("finance_log")
+    .select()
+    .order("created_at", { ascending: true });
   tableData.value = data;
 
   loading.value = false;
 }
 
 const editContent = (data: RuleForm) => {
+  formInline.id = data.id;
   formInline.content = data.content;
   formInline.date = data.date;
   formInline.money = data.money;
@@ -313,6 +332,11 @@ const closeDialog = (formEl: FormInstance | undefined) => {
 
   dialogFormVisible.value = false;
   formEl.resetFields();
+};
+
+const openDialog = () => {
+  dialogFormVisible.value = true;
+  if (formInline.id) formInline.id = null;
 };
 
 onMounted(() => {
