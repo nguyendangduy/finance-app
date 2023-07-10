@@ -1,6 +1,6 @@
 <template>
   <el-main>
-    <div class="mb-5 text-center">
+    <div class="mb-5">
       <el-button type="primary" @click="openDialog"> Thêm thống kê </el-button>
     </div>
     <el-card v-loading="loading">
