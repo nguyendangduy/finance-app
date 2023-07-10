@@ -1,8 +1,8 @@
 <template>
   <el-main>
-    <el-card class="mb-5">
+    <div class="mb-5 text-center">
       <el-button type="primary" @click="openDialog"> Thêm thống kê </el-button>
-    </el-card>
+    </div>
     <el-card v-loading="loading">
       <el-table :data="tableData" style="width: 100%">
         <el-table-column fixed prop="date" label="Thời gian" width="130">
