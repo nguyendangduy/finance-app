@@ -40,6 +40,7 @@
     </el-card>
     <div class="mt-5">
       <el-pagination
+        v-if="tableData.length > 0"
         class="justify-center"
         layout="prev, pager, next"
         :total="fetchData.length"
