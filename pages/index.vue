@@ -12,9 +12,9 @@
             {{ moment(scope.row.date).format("DD/MM/YYYY") }}
           </template>
         </el-table-column>
-        <el-table-column prop="content" label="Nội dung" width="180">
+        <el-table-column prop="content" label="Nội dung" width="300">
           <template #default="scope">
-            <button @click="editContent(scope.row)">
+            <button class="text-left" @click="editContent(scope.row)">
               {{ scope.row.content }}
             </button>
           </template>
