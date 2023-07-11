@@ -3,44 +3,33 @@
     <div class="mb-5">
       <el-button type="primary" @click="openDialog"> Thêm thống kê </el-button>
     </div>
-    <el-card v-loading="loading">
-      <el-table :data="tableData" style="width: 100%">
-        <el-table-column fixed prop="date" label="Thời gian" width="130">
-          <template #default="scope">
-            {{ moment(scope.row.date).format("DD/MM/YYYY") }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="content" label="Nội dung" width="300">
-          <template #default="scope">
-            <button class="text-left" @click="editContent(scope.row)">
-              {{ scope.row.content }}
-            </button>
-          </template>
-        </el-table-column>
-        <el-table-column prop="money" label="Số tiền" width="300">
-          <template #default="scope">
-            {{ scope.row.money.toLocaleString("it-IT") }} VND
-          </template>
-        </el-table-column>
-        <el-table-column prop="type" label="Loại chi tiêu" width="300">
-          <template #default="scope">
-            <el-tag :type="'success'" disable-transitions
-              >{{ genSpendingType(scope.row.spendingType) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="type" label="Loại thanh toán">
-          <template #default="scope">
-            <el-tag :type="'success'" disable-transitions
-              >{{ genType(scope.row.type) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
+    <div class="grid gap-4 sm:grid-cols-2 grid-cols-1"> 
+      <el-card v-for="item in statisticalData">
+        <div class="flex justify-between">
+          <div>
+            <el-tag :type="'success'" class="mr-2">{{ genType(item.type) }}</el-tag>
+            <el-tag disable-transitions>{{ genSpendingType(item.spendingType) }}</el-tag>
+          </div>
+          <el-button @click="editContent(item)" type="primary" :icon="Edit" circle />
+        </div>
+        <div class="mt-4">
+          <p>{{ moment(item.date).format("DD/MM/YYYY") }}</p>
+        </div>
+        <div class="grid gap-2 sm:grid-cols-2 grid-cols-1 mt-2">
+          <div class="w-full">
+            <p>
+              {{ item.content }}
+            </p>
+          </div>
+          <div class="text-right font-medium ">
+            <el-text type="danger">- {{ item.money.toLocaleString("it-IT") }} VND</el-text>
+          </div>
+        </div>
+      </el-card>
+    </div>
     <div class="mt-5">
       <el-pagination
-        v-if="tableData.length > 0"
+        v-if="statisticalData.length > 0"
         class="justify-center"
         layout="prev, pager, next"
         :total="fetchData.length"
@@ -139,6 +128,10 @@
 import type { FormInstance, FormRules } from "element-plus";
 import { createClient } from "@supabase/supabase-js";
 import moment from "moment";
+import {
+  Edit,
+} from '@element-plus/icons-vue'
+
 
 interface RuleForm {
   id?: any;
@@ -210,7 +203,7 @@ const genSpendingType = ($value: string) => {
 };
 
 const ruleFormRef = ref<FormInstance>();
-const tableData: any = ref([]);
+const statisticalData: any = ref([]);
 const fetchData: any = ref([]);
 const loading = ref(false);
 const dialogFormVisible = ref(false);
@@ -323,7 +316,7 @@ async function getFinanceLog() {
 
   fetchData.value = data;
 
-  handleCurrentChange(0)
+  handleCurrentChange(0);
 
   loading.value = false;
 }
@@ -358,9 +351,9 @@ const openDialog = () => {
 };
 
 const handleCurrentChange = (val: number) => {
-  const start = val === 0 ? 0 : (val - 1) * 10
-  const end = start + 10
-  tableData.value = fetchData.value.slice(start, end)
+  const start = val === 0 ? 0 : (val - 1) * 10;
+  const end = start + 10;
+  statisticalData.value = fetchData.value.slice(start, end);
 };
 
 onMounted(() => {
