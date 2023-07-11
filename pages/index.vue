@@ -1,16 +1,38 @@
 <template>
   <el-main>
     <div class="mb-5">
-      <el-button type="primary" @click="openDialog"> Thêm thống kê </el-button>
+      <el-button type="primary" @click="openDialog">
+        Thêm thống kê <el-icon class="el-icon--right"><Plus /></el-icon>
+      </el-button>
     </div>
-    <div class="grid gap-4 sm:grid-cols-2 grid-cols-1"> 
+    <el-divider content-position="left">Thống kê ngày</el-divider>
+    <el-card v-if="statisticalData.length > 0" class="max-w-sm">
+      <div class="grid gap-2 grid-cols-2" :class="{'mb-3' : index < Object.values(byDate).length - 1}" v-for="(value, key, index) in byDate">
+        <p>{{ moment(key).format("DD/MM/YYYY") }}</p>
+        <el-text type="danger" class="font-medium text-right">
+          - {{ onCalculator(value).toLocaleString("it-IT") }} VND
+          <el-icon><Money /></el-icon>
+        </el-text>
+      </div>
+    </el-card>
+    <el-divider content-position="left">Chi tiết thống kê</el-divider>
+    <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
       <el-card v-for="item in statisticalData">
         <div class="flex justify-between">
           <div>
-            <el-tag :type="'success'" class="mr-2">{{ genType(item.type) }}</el-tag>
-            <el-tag disable-transitions>{{ genSpendingType(item.spendingType) }}</el-tag>
+            <el-tag :type="'success'" class="mr-2">{{
+              genType(item.type)
+            }}</el-tag>
+            <el-tag disable-transitions>{{
+              genSpendingType(item.spendingType)
+            }}</el-tag>
           </div>
-          <el-button @click="editContent(item)" type="primary" :icon="Edit" circle />
+          <el-button
+            @click="editContent(item)"
+            type="primary"
+            :icon="Edit"
+            circle
+          />
         </div>
         <div class="mt-4">
           <p>{{ moment(item.date).format("DD/MM/YYYY") }}</p>
@@ -21,8 +43,10 @@
               {{ item.content }}
             </p>
           </div>
-          <div class="text-right font-medium ">
-            <el-text type="danger">- {{ item.money.toLocaleString("it-IT") }} VND</el-text>
+          <div class="text-right font-medium">
+            <el-text type="danger"
+              >- {{ item.money.toLocaleString("it-IT") }} VND <el-icon><Money /></el-icon></el-text
+            >
           </div>
         </div>
       </el-card>
@@ -128,10 +152,8 @@
 import type { FormInstance, FormRules } from "element-plus";
 import { createClient } from "@supabase/supabase-js";
 import moment from "moment";
-import {
-  Edit,
-} from '@element-plus/icons-vue'
-
+import { Edit, Plus, Money } from "@element-plus/icons-vue";
+import { groupBy } from "lodash";
 
 interface RuleForm {
   id?: any;
@@ -205,6 +227,7 @@ const genSpendingType = ($value: string) => {
 const ruleFormRef = ref<FormInstance>();
 const statisticalData: any = ref([]);
 const fetchData: any = ref([]);
+const byDate: any = ref([]);
 const loading = ref(false);
 const dialogFormVisible = ref(false);
 
@@ -315,6 +338,7 @@ async function getFinanceLog() {
     .order("created_at", { ascending: true });
 
   fetchData.value = data;
+  byDate.value = groupBy(data, "date");
 
   handleCurrentChange(0);
 
@@ -354,6 +378,12 @@ const handleCurrentChange = (val: number) => {
   const start = val === 0 ? 0 : (val - 1) * 10;
   const end = start + 10;
   statisticalData.value = fetchData.value.slice(start, end);
+};
+
+const onCalculator = (item: any) => {
+  return item.reduce((prev: any, next: any) => {
+    return prev + next.money;
+  }, 0);
 };
 
 onMounted(() => {
