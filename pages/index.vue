@@ -5,22 +5,7 @@
         Thêm thống kê
       </el-button>
     </div>
-    <el-divider content-position="center">Thống kê ngày</el-divider>
-    <div class="max-w-sm m-auto">
-      <el-card v-if="statisticalData.length > 0">
-        <div
-          class="grid gap-2 grid-cols-2"
-          :class="{ 'mb-3': index < Object.values(byDate).length - 1 }"
-          v-for="(value, key, index) in byDate"
-        >
-          <NuxtLink class="underline" :to="{ path: `date/${key}`}" >{{ moment(key).format("DD/MM/YYYY") }}</NuxtLink>
-          <el-text type="danger" class="font-medium text-right">
-            - {{ onCalculator(value).toLocaleString("it-IT") }} VND
-            <el-icon><Money /></el-icon>
-          </el-text>
-        </div>
-      </el-card>
-    </div>
+    <PerDate :dateData="byDate" />
     <el-divider content-position="left">Chi tiết thống kê</el-divider>
     <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
       <el-card v-for="item in statisticalData">

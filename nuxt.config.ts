@@ -22,4 +22,8 @@ export default defineNuxtConfig({
       ["isDate", "isLodashDate"], // => _isLodashDate
     ],
   },
+  components: {
+    global: true,
+    dirs: ['~/components']
+  }
 })
