@@ -2,19 +2,25 @@
   <el-main>
     <div class="mb-5">
       <el-button type="primary" @click="openDialog">
-        Thêm thống kê <el-icon class="el-icon--right"><Plus /></el-icon>
+        Thêm thống kê
       </el-button>
     </div>
-    <el-divider content-position="left">Thống kê ngày</el-divider>
-    <el-card v-if="statisticalData.length > 0" class="max-w-sm">
-      <div class="grid gap-2 grid-cols-2" :class="{'mb-3' : index < Object.values(byDate).length - 1}" v-for="(value, key, index) in byDate">
-        <p>{{ moment(key).format("DD/MM/YYYY") }}</p>
-        <el-text type="danger" class="font-medium text-right">
-          - {{ onCalculator(value).toLocaleString("it-IT") }} VND
-          <el-icon><Money /></el-icon>
-        </el-text>
-      </div>
-    </el-card>
+    <el-divider content-position="center">Thống kê ngày</el-divider>
+    <div class="max-w-sm m-auto">
+      <el-card v-if="statisticalData.length > 0">
+        <div
+          class="grid gap-2 grid-cols-2"
+          :class="{ 'mb-3': index < Object.values(byDate).length - 1 }"
+          v-for="(value, key, index) in byDate"
+        >
+          <NuxtLink :to="{ path: `date/${key}`}" >{{ moment(key).format("DD/MM/YYYY") }}</NuxtLink>
+          <el-text type="danger" class="font-medium text-right">
+            - {{ onCalculator(value).toLocaleString("it-IT") }} VND
+            <el-icon><Money /></el-icon>
+          </el-text>
+        </div>
+      </el-card>
+    </div>
     <el-divider content-position="left">Chi tiết thống kê</el-divider>
     <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
       <el-card v-for="item in statisticalData">
@@ -45,8 +51,9 @@
           </div>
           <div class="text-right font-medium">
             <el-text type="danger"
-              >- {{ item.money.toLocaleString("it-IT") }} VND <el-icon><Money /></el-icon></el-text
-            >
+              >- {{ item.money.toLocaleString("it-IT") }} VND
+              <el-icon><Money /></el-icon
+            ></el-text>
           </div>
         </div>
       </el-card>
@@ -152,7 +159,7 @@
 import type { FormInstance, FormRules } from "element-plus";
 import { createClient } from "@supabase/supabase-js";
 import moment from "moment";
-import { Edit, Plus, Money } from "@element-plus/icons-vue";
+import { Edit, Money } from "@element-plus/icons-vue";
 import { groupBy } from "lodash";
 
 interface RuleForm {
