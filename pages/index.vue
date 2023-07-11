@@ -13,7 +13,7 @@
           :class="{ 'mb-3': index < Object.values(byDate).length - 1 }"
           v-for="(value, key, index) in byDate"
         >
-          <NuxtLink :to="{ path: `date/${key}`}" >{{ moment(key).format("DD/MM/YYYY") }}</NuxtLink>
+          <NuxtLink class="underline" :to="{ path: `date/${key}`}" >{{ moment(key).format("DD/MM/YYYY") }}</NuxtLink>
           <el-text type="danger" class="font-medium text-right">
             - {{ onCalculator(value).toLocaleString("it-IT") }} VND
             <el-icon><Money /></el-icon>
