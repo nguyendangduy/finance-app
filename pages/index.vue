@@ -113,9 +113,9 @@
 
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from "element-plus";
-import { createClient } from "@supabase/supabase-js";
 import { groupBy } from "lodash";
 
+const { $supabase } = useNuxtApp();
 const dayjs = useDayjs();
 
 interface RuleForm {
@@ -180,17 +180,6 @@ const formInline = reactive<RuleForm>({
   dating: false,
 });
 
-const runtimeConfig = useRuntimeConfig();
-const supabase = createClient(
-  `${runtimeConfig.public.supabase.url}`,
-  `${runtimeConfig.public.supabase.key}`,
-  {
-    auth: {
-      persistSession: false,
-    },
-  }
-);
-
 const checkMoney = (rule: any, value: any, callback: any) => {
   if (!value) {
     return callback(new Error("Vui lòng nhập số tiền"));
@@ -233,7 +222,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
       };
 
       if (formData.id !== 0) {
-        const { data, error } = await supabase
+        const { data, error } = await $supabase
           .from("finance_log")
           .update(formData)
           .eq("id", formData.id)
@@ -246,7 +235,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
       } else {
         delete formData.id;
 
-        const { data, error } = await supabase
+        const { data, error } = await $supabase
           .from("finance_log")
           .insert([formData])
           .select();
@@ -273,7 +262,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
 async function getFinanceLog() {
   loading.value = true;
 
-  const { data } = await supabase
+  const { data } = await $supabase
     .from("finance_log")
     .select()
     .order("created_at", { ascending: true });

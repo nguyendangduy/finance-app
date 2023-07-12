@@ -26,33 +26,23 @@
 </template>
 
 <script lang="ts" setup>
-import { createClient } from "@supabase/supabase-js";
 import { ArrowLeftBold } from "@element-plus/icons-vue";
 import { groupBy } from "lodash";
 
 const route = useRoute();
+const { $supabase } = useNuxtApp();
 
 const statisticalData: any = ref([]);
 const fetchData: any = ref([]);
 const byDate: any = ref([]);
 const loading = ref(false);
 
-const runtimeConfig = useRuntimeConfig();
-const supabase = createClient(
-  `${runtimeConfig.public.supabase.url}`,
-  `${runtimeConfig.public.supabase.key}`,
-  {
-    auth: {
-      persistSession: false,
-    },
-  }
-);
 
 async function getFinanceLog() {
   loading.value = true;
   const date = route.params.id;
 
-  const { data } = await supabase
+  const { data } = await $supabase
     .from("finance_log")
     .select()
     .eq("date", date)
