@@ -6,22 +6,32 @@
         Trở về
       </NuxtLink>
     </div>
-    <PerDateValue :dateData="byDate" />
-    <el-divider content-position="left">Chi tiết thống kê</el-divider>
-    <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
-      <template v-for="item in statisticalData">
-        <CardItem :item="item" :isDateDetail="true" />
-      </template>
-    </div>
-    <div class="mt-5">
-      <el-pagination
-        v-if="fetchData.length > 10"
-        class="justify-center"
-        layout="prev, pager, next"
-        :total="fetchData.length"
-        @current-change="handleCurrentChange"
-      />
-    </div>
+    <FilterByDate />
+    <template v-if="Object.values(byDate).length > 0">
+      <PerDateValue :dateData="byDate" />
+      <el-divider content-position="left">Chi tiết thống kê</el-divider>
+      <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
+        <template v-for="item in statisticalData">
+          <CardItem :item="item" :isDateDetail="true" />
+        </template>
+      </div>
+      <div class="mt-5">
+        <el-pagination
+          v-if="fetchData.length > 10"
+          class="justify-center"
+          layout="prev, pager, next"
+          :total="fetchData.length"
+          @current-change="handleCurrentChange"
+        />
+      </div>
+    </template>
+    <template v-else>
+      <div class="mt-5 text-center">
+        Không có thông tin thống kê
+        <br />
+        Vui lòng chọn ngày khác
+      </div>
+    </template>
   </el-main>
 </template>
 
@@ -36,7 +46,6 @@ const statisticalData: any = ref([]);
 const fetchData: any = ref([]);
 const byDate: any = ref([]);
 const loading = ref(false);
-
 
 async function getFinanceLog() {
   loading.value = true;

@@ -1,5 +1,5 @@
 <template>
-  <NuxtLink :to="`date/${date}`">
+  <NuxtLink :to="`/date/${date}`">
     <div class="flex items-center">
       <img src="/calendar.png" alt="calendar" width="25" class="mr-2" />
       <p class="font-medium">{{ dayjs(date).format("DD/MM/YYYY") }}</p>

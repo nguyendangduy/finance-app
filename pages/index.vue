@@ -3,7 +3,7 @@
     <div class="mb-5">
       <el-button type="primary" @click="openDialog"> Thêm thống kê </el-button>
     </div>
-    <PerDateValue :dateData="byDate" />
+    <FilterByDate />
     <el-divider content-position="left">Chi tiết thống kê</el-divider>
     <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
       <template v-for="item in statisticalData">
@@ -47,7 +47,7 @@
           type="date"
           placeholder="Chọn ngày"
           format="DD/MM/YYYY"
-          value-format="YYYY/MM/DD"
+          value-format="YYYY-MM-DD"
           clearable
         />
       </el-form-item>
@@ -113,7 +113,6 @@
 
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from "element-plus";
-import { groupBy } from "lodash";
 
 const { $supabase } = useNuxtApp();
 const dayjs = useDayjs();
@@ -165,7 +164,6 @@ const spendingOptions = [
 const ruleFormRef = ref<FormInstance>();
 const statisticalData: any = ref([]);
 const fetchData: any = ref([]);
-const byDate: any = ref([]);
 const loading = ref(false);
 const dialogFormVisible = ref(false);
 const currentPage = ref(1);
@@ -268,7 +266,6 @@ async function getFinanceLog() {
     .order("created_at", { ascending: true });
 
   fetchData.value = data;
-  byDate.value = groupBy(data, "date");
 
   handleCurrentChange(0);
 
