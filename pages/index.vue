@@ -9,7 +9,7 @@
     <el-divider content-position="left">Chi tiết thống kê</el-divider>
     <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
       <template v-for="item in statisticalData">
-        <CardItem :item="item" @clicked="editRecord"/>
+        <CardItem :item="item" @clicked="editRecord" />
       </template>
     </div>
     <div class="mt-5">
@@ -116,8 +116,9 @@
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from "element-plus";
 import { createClient } from "@supabase/supabase-js";
-import moment from "moment";
 import { groupBy } from "lodash";
+
+const dayjs = useDayjs()
 
 interface RuleForm {
   id?: number;
@@ -174,7 +175,7 @@ const currentPage = ref(1)
 const formInline = reactive<RuleForm>({
   id: 0,
   content: "",
-  date: moment().format(),
+  date: dayjs().format(),
   money: 0,
   type: "",
   spendingType: "",

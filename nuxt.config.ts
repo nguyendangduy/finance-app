@@ -9,7 +9,8 @@ export default defineNuxtConfig({
     '@element-plus/nuxt',
     '@nuxtjs/tailwindcss',
     '@nuxtjs/supabase',
-    'nuxt-lodash'
+    'nuxt-lodash',
+    'dayjs-nuxt'
   ],
   lodash: {
     prefix: "_",
