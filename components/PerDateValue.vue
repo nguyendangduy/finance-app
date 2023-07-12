@@ -19,6 +19,7 @@
 
 <script lang="ts" setup>
 import moment from "moment";
+import { Money } from "@element-plus/icons-vue";
 
 const { dateData } = defineProps(['dateData'])
 

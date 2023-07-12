@@ -5,18 +5,18 @@
         Thêm thống kê
       </el-button>
     </div>
-    <PerDate :dateData="byDate" />
+    <PerDateValue :dateData="byDate" />
     <el-divider content-position="left">Chi tiết thống kê</el-divider>
     <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
       <el-card v-for="item in statisticalData">
         <div class="flex justify-between">
-          <div>
-            <el-tag :type="'success'" class="mr-2">{{
-              genType(item.type)
-            }}</el-tag>
-            <el-tag disable-transitions>{{
-              genSpendingType(item.spendingType)
-            }}</el-tag>
+          <div class="flex items-center">
+            <img src="/calendar.png" alt="calendar" width="30" class="mr-2">
+            <p class="font-medium">{{ moment(item.date).format("DD/MM/YYYY") }}</p>
+            <svg v-if="item.dating" class="heart ml-2" viewBox="0 0 32 29.6">
+              <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
+              c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/>
+            </svg>
           </div>
           <el-button
             @click="editContent(item)"
@@ -25,29 +25,35 @@
             circle
           />
         </div>
-        <div class="mt-4">
-          <p>{{ moment(item.date).format("DD/MM/YYYY") }}</p>
-        </div>
-        <div class="grid gap-2 sm:grid-cols-2 grid-cols-1 mt-2">
+        <div class="grid gap-2 sm:grid-cols-2 grid-cols-1 mt-4">
           <div class="w-full">
             <p>
               {{ item.content }}
             </p>
           </div>
-          <div class="text-right font-medium">
-            <el-text type="danger"
-              >- {{ item.money.toLocaleString("it-IT") }} VND
-              <el-icon><Money /></el-icon
-            ></el-text>
+          <div class="flex items-center text-right font-medium justify-end">
+            <el-text type="danger"> 
+              - {{ item.money.toLocaleString("it-IT") }} VND
+            </el-text>
+            <img src="/insert-coin.png" alt="insert coin" width="25">
+          </div>
+          <div class="grid gap-2 grid-cols-2 mt-2">
+            <el-tag :type="'success'">{{
+              genType(item.type)
+            }}</el-tag>
+            <el-tag disable-transitions>{{
+              genSpendingType(item.spendingType)
+            }}</el-tag>
           </div>
         </div>
       </el-card>
     </div>
     <div class="mt-5">
       <el-pagination
+        v-model:current-page="currentPage"
         v-if="statisticalData.length > 0"
         class="justify-center"
-        layout="prev, pager, next"
+        layout="total, prev, pager, next"
         :total="fetchData.length"
         @current-change="handleCurrentChange"
       />
@@ -124,6 +130,9 @@
           clearable
         />
       </el-form-item>
+      <el-form-item label="Hẹn hò">
+        <el-switch v-model="formInline.dating" />
+      </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
@@ -148,12 +157,13 @@ import { Edit, Money } from "@element-plus/icons-vue";
 import { groupBy } from "lodash";
 
 interface RuleForm {
-  id?: any;
+  id?: number;
   content: string;
   date: string;
   money: number;
   type: string;
   spendingType: string;
+  dating: boolean
 }
 
 const options = [
@@ -222,14 +232,16 @@ const fetchData: any = ref([]);
 const byDate: any = ref([]);
 const loading = ref(false);
 const dialogFormVisible = ref(false);
+const currentPage = ref(1)
 
 const formInline = reactive<RuleForm>({
-  id: null,
+  id: 0,
   content: "",
   date: moment().format(),
   money: 0,
   type: "",
   spendingType: "",
+  dating: false
 });
 
 const runtimeConfig = useRuntimeConfig();
@@ -284,7 +296,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
         ...formInline,
       };
 
-      if (formData.id) {
+      if (formData.id !== 0) {
         const { data, error } = await supabase
           .from("finance_log")
           .update(formData)
@@ -314,6 +326,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
 
       dialogFormVisible.value = false;
       loading.value = false;
+      currentPage.value = 1
     } else {
       loading.value = false;
       console.log("error submit!", fields);
@@ -344,6 +357,7 @@ const editContent = (data: RuleForm) => {
   formInline.money = data.money;
   formInline.type = data.type;
   formInline.spendingType = data.spendingType;
+  formInline.dating = data.dating;
 
   dialogFormVisible.value = true;
 };
@@ -354,12 +368,13 @@ const closeDialog = (formEl: FormInstance | undefined) => {
   dialogFormVisible.value = false;
   formEl.resetFields();
 
-  formInline.id = null;
+  formInline.id = 0;
   formInline.content = "";
   formInline.date = "";
   formInline.money = 0;
   formInline.type = "";
   formInline.spendingType = "";
+  formInline.dating = false
 };
 
 const openDialog = () => {
@@ -372,23 +387,7 @@ const handleCurrentChange = (val: number) => {
   statisticalData.value = fetchData.value.slice(start, end);
 };
 
-const onCalculator = (item: any) => {
-  return item.reduce((prev: any, next: any) => {
-    return prev + next.money;
-  }, 0);
-};
-
 onMounted(() => {
   getFinanceLog();
 });
 </script>
-
-<style>
-.el-overlay-dialog {
-  padding: 0 15px;
-}
-
-.dialog-custom {
-  max-width: 100%;
-}
-</style>
