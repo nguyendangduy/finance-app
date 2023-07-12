@@ -1,13 +1,16 @@
 <template>
   <el-main>
     <div class="mt-2">
-      <NuxtLink to="/" class="flex items-center"> <el-icon class="el-icon--left"><ArrowLeftBold /></el-icon> Trở về</NuxtLink>
+      <NuxtLink to="/" class="flex items-center">
+        <el-icon class="el-icon--left"><ArrowLeftBold /></el-icon>
+        Trở về
+      </NuxtLink>
     </div>
     <PerDateValue :dateData="byDate" />
     <el-divider content-position="left">Chi tiết thống kê</el-divider>
     <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
       <template v-for="item in statisticalData">
-        <CardItem :item="item" :isDateDetail="true"/>
+        <CardItem :item="item" :isDateDetail="true" />
       </template>
     </div>
     <div class="mt-5">
@@ -24,10 +27,10 @@
 
 <script lang="ts" setup>
 import { createClient } from "@supabase/supabase-js";
-import { Money, ArrowLeftBold } from "@element-plus/icons-vue";
+import { ArrowLeftBold } from "@element-plus/icons-vue";
 import { groupBy } from "lodash";
 
-const route = useRoute()
+const route = useRoute();
 
 const statisticalData: any = ref([]);
 const fetchData: any = ref([]);
@@ -47,12 +50,12 @@ const supabase = createClient(
 
 async function getFinanceLog() {
   loading.value = true;
-  const date = route.params.id
+  const date = route.params.id;
 
   const { data } = await supabase
     .from("finance_log")
     .select()
-    .eq('date', date)
+    .eq("date", date)
     .order("created_at", { ascending: true });
 
   fetchData.value = data;
@@ -68,7 +71,6 @@ const handleCurrentChange = (val: number) => {
   const end = start + 10;
   statisticalData.value = fetchData.value.slice(start, end);
 };
-
 
 onMounted(() => {
   getFinanceLog();

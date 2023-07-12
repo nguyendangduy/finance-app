@@ -1,9 +1,7 @@
 <template>
   <el-main>
     <div class="mb-5">
-      <el-button type="primary" @click="openDialog">
-        Thêm thống kê
-      </el-button>
+      <el-button type="primary" @click="openDialog"> Thêm thống kê </el-button>
     </div>
     <PerDateValue :dateData="byDate" />
     <el-divider content-position="left">Chi tiết thống kê</el-divider>
@@ -118,7 +116,7 @@ import type { FormInstance, FormRules } from "element-plus";
 import { createClient } from "@supabase/supabase-js";
 import { groupBy } from "lodash";
 
-const dayjs = useDayjs()
+const dayjs = useDayjs();
 
 interface RuleForm {
   id?: number;
@@ -127,7 +125,7 @@ interface RuleForm {
   money: number;
   type: string;
   spendingType: string;
-  dating: boolean
+  dating: boolean;
 }
 
 const options = [
@@ -170,7 +168,7 @@ const fetchData: any = ref([]);
 const byDate: any = ref([]);
 const loading = ref(false);
 const dialogFormVisible = ref(false);
-const currentPage = ref(1)
+const currentPage = ref(1);
 
 const formInline = reactive<RuleForm>({
   id: 0,
@@ -179,7 +177,7 @@ const formInline = reactive<RuleForm>({
   money: 0,
   type: "",
   spendingType: "",
-  dating: false
+  dating: false,
 });
 
 const runtimeConfig = useRuntimeConfig();
@@ -264,7 +262,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
 
       dialogFormVisible.value = false;
       loading.value = false;
-      currentPage.value = 1
+      currentPage.value = 1;
     } else {
       loading.value = false;
       console.log("error submit!", fields);
@@ -312,7 +310,7 @@ const closeDialog = (formEl: FormInstance | undefined) => {
   formInline.money = 0;
   formInline.type = "";
   formInline.spendingType = "";
-  formInline.dating = false
+  formInline.dating = false;
 };
 
 const openDialog = () => {

@@ -7,7 +7,7 @@
         :class="{ 'mb-3': index < Object.values(dateData).length - 1 }"
         v-for="(value, key, index) in dateData"
       >
-        <DateCard :date="key"/>
+        <DateCard :date="key" />
         <MoneyCard :money="onCalculator(value)" />
       </div>
     </el-card>
@@ -15,9 +15,6 @@
 </template>
 
 <script lang="ts" setup>
-import DateCard from "./DateCard.vue";
-import MoneyCard from "./MoneyCard.vue";
-
 const { dateData } = defineProps(["dateData"]);
 
 const onCalculator = (item: any) => {

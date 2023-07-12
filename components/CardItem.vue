@@ -2,7 +2,13 @@
   <el-card>
     <div class="flex justify-between">
       <DateCard :date="item.date" :dating="item.dating" />
-      <el-button v-if="!isDateDetail" @click="editRecord(item)" type="primary" :icon="Edit" circle />
+      <el-button
+        v-if="!isDateDetail"
+        @click="editRecord(item)"
+        type="primary"
+        :icon="Edit"
+        circle
+      />
     </div>
     <div class="grid gap-2 sm:grid-cols-2 grid-cols-1 mt-4">
       <div class="w-full">
@@ -23,7 +29,6 @@
 
 <script lang="ts" setup>
 import { Edit } from "@element-plus/icons-vue";
-import DateCard from "./DateCard.vue";
 
 const emit = defineEmits(["clicked"]);
 const { item, isDateDetail } = defineProps(["item", "isDateDetail"]);
