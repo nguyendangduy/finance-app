@@ -8,50 +8,14 @@
     <PerDateValue :dateData="byDate" />
     <el-divider content-position="left">Chi tiết thống kê</el-divider>
     <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
-      <el-card v-for="item in statisticalData">
-        <div class="flex justify-between">
-          <div class="flex items-center">
-            <img src="/calendar.png" alt="calendar" width="30" class="mr-2">
-            <p class="font-medium">{{ moment(item.date).format("DD/MM/YYYY") }}</p>
-            <svg v-if="item.dating" class="heart ml-2" viewBox="0 0 32 29.6">
-              <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
-              c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/>
-            </svg>
-          </div>
-          <el-button
-            @click="editContent(item)"
-            type="primary"
-            :icon="Edit"
-            circle
-          />
-        </div>
-        <div class="grid gap-2 sm:grid-cols-2 grid-cols-1 mt-4">
-          <div class="w-full">
-            <p>
-              {{ item.content }}
-            </p>
-          </div>
-          <div class="flex items-center text-right font-medium justify-end">
-            <el-text type="danger"> 
-              - {{ item.money.toLocaleString("it-IT") }} VND
-            </el-text>
-            <img src="/insert-coin.png" alt="insert coin" width="25">
-          </div>
-          <div class="grid gap-2 grid-cols-2 mt-2">
-            <el-tag :type="'success'">{{
-              genType(item.type)
-            }}</el-tag>
-            <el-tag disable-transitions>{{
-              genSpendingType(item.spendingType)
-            }}</el-tag>
-          </div>
-        </div>
-      </el-card>
+      <template v-for="item in statisticalData">
+        <CardItem :item="item" @clicked="editRecord"/>
+      </template>
     </div>
     <div class="mt-5">
       <el-pagination
         v-model:current-page="currentPage"
-        v-if="statisticalData.length > 0"
+        v-if="fetchData.length > 10"
         class="justify-center"
         layout="total, prev, pager, next"
         :total="fetchData.length"
@@ -153,7 +117,6 @@
 import type { FormInstance, FormRules } from "element-plus";
 import { createClient } from "@supabase/supabase-js";
 import moment from "moment";
-import { Edit, Money } from "@element-plus/icons-vue";
 import { groupBy } from "lodash";
 
 interface RuleForm {
@@ -199,32 +162,6 @@ const spendingOptions = [
     label: "Cá nhân",
   },
 ];
-
-const genType = ($value: string) => {
-  switch ($value) {
-    case "wallet":
-      return "Ví";
-    case "momo":
-      return "Momo";
-    case "vcb":
-      return "VCB";
-  }
-};
-
-const genSpendingType = ($value: string) => {
-  switch ($value) {
-    case "eat":
-      return "Ăn uống";
-    case "hangout":
-      return "Đi chơi";
-    case "rent":
-      return "Thuê nhà";
-    case "personal":
-      return "Cá nhân";
-    default:
-      return "Linh tinh";
-  }
-};
 
 const ruleFormRef = ref<FormInstance>();
 const statisticalData: any = ref([]);
@@ -350,7 +287,7 @@ async function getFinanceLog() {
   loading.value = false;
 }
 
-const editContent = (data: RuleForm) => {
+const editRecord = (data: RuleForm) => {
   formInline.id = data.id;
   formInline.content = data.content;
   formInline.date = data.date;
