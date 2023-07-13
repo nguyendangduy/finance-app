@@ -21,6 +21,10 @@ html {
   margin-left: 10px;
 }
 
+.custom-loading .el-loading-spinner .path{
+  stroke: #626aef;
+}
+
 // @keyframes pulse {
 //   0% { transform: scale(1); }
 //   50% { transform: scale(1.3); }

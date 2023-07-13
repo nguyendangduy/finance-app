@@ -1,24 +1,28 @@
 <template>
   <el-main>
-    <div class="mb-5">
-      <el-button type="primary" @click="openDialog"> Thêm thống kê </el-button>
-    </div>
-    <FilterByDate />
-    <el-divider content-position="left">Chi tiết thống kê</el-divider>
-    <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
-      <template v-for="item in statisticalData">
-        <CardItem :item="item" @clicked="editRecord" />
-      </template>
-    </div>
-    <div class="mt-5">
-      <el-pagination
-        v-model:current-page="currentPage"
-        v-if="fetchData.length > 10"
-        class="justify-center"
-        layout="total, prev, pager, next"
-        :total="fetchData.length"
-        @current-change="handleCurrentChange"
-      />
+    <div class="container">
+      <div class="mb-5 text-right">
+        <el-button :color="COLOR_BTN" @click="openDialog">
+          Thêm thống kê
+        </el-button>
+      </div>
+      <FilterByDate />
+      <el-divider content-position="left">Chi tiết thống kê</el-divider>
+      <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
+        <template v-for="item in statisticalData">
+          <CardItem :item="item" @clicked="editRecord" />
+        </template>
+      </div>
+      <div class="mt-5">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-if="fetchData.length > 10"
+          class="justify-center"
+          layout="total, prev, pager, next"
+          :total="fetchData.length"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
   </el-main>
   <el-dialog
@@ -113,9 +117,14 @@
 
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from "element-plus";
+import { COLOR_BTN } from "~/constants";
+import { ElLoading } from "element-plus";
 
 const { $supabase } = useNuxtApp();
 const dayjs = useDayjs();
+const optionsLoading = {
+  customClass: "custom-loading",
+};
 
 interface RuleForm {
   id?: number;
@@ -258,6 +267,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
 };
 
 async function getFinanceLog() {
+  ElLoading.service(optionsLoading);
   loading.value = true;
 
   const { data } = await $supabase
@@ -270,6 +280,7 @@ async function getFinanceLog() {
   handleCurrentChange(0);
 
   loading.value = false;
+  ElLoading.service().close();
 }
 
 const editRecord = (data: RuleForm) => {

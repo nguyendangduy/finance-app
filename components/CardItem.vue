@@ -5,7 +5,7 @@
       <el-button
         v-if="!isDateDetail"
         @click="editRecord(item)"
-        type="primary"
+        :color="COLOR_BTN"
         :icon="Edit"
         circle
       />
@@ -29,6 +29,7 @@
 
 <script lang="ts" setup>
 import { Edit } from "@element-plus/icons-vue";
+import { COLOR_BTN } from "~/constants";
 
 const emit = defineEmits(["clicked"]);
 const { item, isDateDetail } = defineProps(["item", "isDateDetail"]);
