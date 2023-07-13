@@ -56,16 +56,18 @@ async function getFinanceLog() {
   loading.value = true;
   const date = route.params.id;
 
-  const { data } = await $supabase
-    .from("finance_log")
-    .select()
-    .eq("date", date)
-    .order("created_at", { ascending: true });
+  if (date !== 'null') {
+    const { data } = await $supabase
+      .from("finance_log")
+      .select()
+      .eq("date", date)
+      .order("created_at", { ascending: true });
 
-  fetchData.value = data;
-  byDate.value = groupBy(data, "date");
+    fetchData.value = data;
+    byDate.value = groupBy(data, "date");
 
-  handleCurrentChange(0);
+    handleCurrentChange(0);
+  }
 
   loading.value = false;
   ElLoading.service().close();
