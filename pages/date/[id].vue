@@ -220,7 +220,7 @@ const rules = reactive<FormRules<RuleForm>>({
     {
       required: true,
       message: "Vui lòng chọn loại",
-      trigger: "blur",
+      trigger: "change",
     },
   ],
 });
@@ -273,7 +273,10 @@ const closeDialog = (formEl: FormInstance | undefined) => {
 
   dialogFormVisible.value = false;
   resetFields();
-  formEl.clearValidate();
+
+  setTimeout(() => {
+    formEl.clearValidate();
+  }, 100);
 };
 
 const openDialog = () => {
