@@ -107,6 +107,7 @@
           type="primary"
           @click="onSubmit(ruleFormRef)"
           :loading="loading"
+          :color="COLOR_BTN"
         >
           Xác nhận
         </el-button>
@@ -171,10 +172,10 @@ const spendingOptions = [
 ];
 
 const ruleFormRef = ref<FormInstance>();
+const dialogFormVisible = ref(false);
 const statisticalData: any = ref([]);
 const fetchData: any = ref([]);
 const loading = ref(false);
-const dialogFormVisible = ref(false);
 const currentPage = ref(1);
 
 const formInline = reactive<RuleForm>({
