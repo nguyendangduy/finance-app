@@ -12,10 +12,11 @@
     </div>
     <div class="mt-5">
       <el-pagination
+        :small="true"
         v-model:current-page="currentPage"
         v-if="fetchData.length > 10"
         class="justify-center"
-        layout="total, prev, pager, next"
+        layout="prev, pager, next"
         :total="fetchData.length"
         @current-change="handleCurrentChange"
       />
