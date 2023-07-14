@@ -220,7 +220,7 @@ const rules = reactive<FormRules<RuleForm>>({
     {
       required: true,
       message: "Vui lòng chọn loại",
-      trigger: "change",
+      trigger: "blur",
     },
   ],
 });
