@@ -1,0 +1,1 @@
+export const COLOR_BTN = '#626aef';

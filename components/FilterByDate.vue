@@ -14,9 +14,14 @@
 
 <script lang="ts" setup>
 const dateSelected= ref('')
+const { date } = defineProps(['date'])
 
 const handleSelectDate = (date: any) => {
   navigateTo(`/date/${date}`)
 }
+
+onMounted(() => {
+  dateSelected.value = date
+});
 
 </script>
