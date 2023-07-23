@@ -7,31 +7,23 @@
         </el-button>
       </div>
       <FilterByDate />
-      <template v-if="Object.values(byDate).length > 0">
-        <PerDateValue :dateData="byDate" />
-        <el-divider content-position="left">Chi tiết thống kê</el-divider>
-        <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
-          <template v-for="item in statisticalData">
-            <CardItem :item="item" @clicked="editRecord" />
-          </template>
-        </div>
-        <div class="mt-5">
-          <el-pagination
-            :small="true"
-            v-model:current-page="currentPage"
-            v-if="fetchData.length > 10"
-            class="justify-center"
-            layout="prev, pager, next"
-            :total="fetchData.length"
-            @current-change="handleCurrentChange"
-          />
-        </div>
-      </template>
-      <template v-else>
-        <div v-if="!loading" class="text-xl mt-6 text-center max-w-lg mx-auto">
-          <img src="/no-data.svg" alt="no data" />
-        </div>
-      </template>
+      <el-divider content-position="left">Chi tiết thống kê</el-divider>
+      <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
+        <template v-for="item in statisticalData">
+          <CardItem :item="item" @clicked="editRecord" />
+        </template>
+      </div>
+      <div class="mt-5">
+        <el-pagination
+          :small="true"
+          v-model:current-page="currentPage"
+          v-if="fetchData.length > 10"
+          class="justify-center"
+          layout="prev, pager, next"
+          :total="fetchData.length"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
   </el-main>
   <el-dialog
@@ -129,7 +121,6 @@
 import type { FormInstance, FormRules } from "element-plus";
 import { COLOR_BTN } from "~/constants";
 import { ElLoading } from "element-plus";
-import { groupBy } from "lodash";
 
 const { $supabase } = useNuxtApp();
 const dayjs = useDayjs();
@@ -187,7 +178,6 @@ const statisticalData: any = ref([]);
 const fetchData: any = ref([]);
 const loading = ref(false);
 const currentPage = ref(1);
-const byDate: any = ref([]);
 
 const formInline = reactive<RuleForm>({
   id: 0,
@@ -285,11 +275,9 @@ async function getFinanceLog() {
   const { data } = await $supabase
     .from("finance_log")
     .select()
-    .eq("date", dayjs().format())
     .order("created_at", { ascending: true });
 
   fetchData.value = data;
-  byDate.value = groupBy(data, "date");
 
   handleCurrentChange(0);
 
