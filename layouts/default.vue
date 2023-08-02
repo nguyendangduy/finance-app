@@ -1,11 +1,11 @@
 <template>
-  <template v-if="confirm === '26112609'">
+  <!-- <template v-if="confirm === '26112609'"> -->
     <TheHeader />
     <slot />
-  </template>
+  <!-- </template> -->
 </template>
 
-<script lang="ts" setup>
+<!-- <script lang="ts" setup>
 const confirm: any = ref([]);
 
 onMounted(() => {
@@ -16,4 +16,4 @@ onMounted(() => {
     location.reload();
   }
 });
-</script>
+</script> -->

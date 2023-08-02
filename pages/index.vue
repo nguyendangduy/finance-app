@@ -7,11 +7,18 @@
         </el-button>
       </div>
       <FilterByDate />
-      <template v-if="Object.values(byDate).length > 0">
-        <PerDateValue :dateData="byDate" />
+      <el-card class="mt-5 max-w-fit mx-auto">
+        <el-date-picker
+          v-model="monthSelected"
+          type="month"
+          placeholder="Chọn tháng"
+          @change="handleSelectMonth"
+        />
+      </el-card>
+      <template v-if="Object.values(fetchData).length > 0">
         <el-divider content-position="left">Chi tiết thống kê</el-divider>
         <div class="grid gap-4 sm:grid-cols-2 grid-cols-1">
-          <template v-for="item in statisticalData">
+          <template v-for="item in fetchData">
             <CardItem :item="item" @clicked="editRecord" />
           </template>
         </div>
@@ -19,11 +26,11 @@
           <el-pagination
             :small="true"
             v-model:current-page="currentPage"
-            v-if="fetchData.length > 10"
+            v-if="totalRecord > 10"
             class="justify-center"
             layout="prev, pager, next"
-            :total="fetchData.length"
-            @current-change="handleCurrentChange"
+            :total="totalRecord"
+            @current-change="queryData"
           />
         </div>
       </template>
@@ -129,7 +136,7 @@
 import type { FormInstance, FormRules } from "element-plus";
 import { COLOR_BTN } from "~/constants";
 import { ElLoading } from "element-plus";
-import { groupBy } from "lodash";
+// import { groupBy } from "lodash";
 
 const { $supabase } = useNuxtApp();
 const dayjs = useDayjs();
@@ -183,11 +190,16 @@ const spendingOptions = [
 
 const ruleFormRef = ref<FormInstance>();
 const dialogFormVisible = ref(false);
-const statisticalData: any = ref([]);
 const fetchData: any = ref([]);
 const loading = ref(false);
 const currentPage = ref(1);
-const byDate: any = ref([]);
+const totalRecord: any = ref();
+const monthSelected= ref('')
+const dateFilter = ref({
+  year: 0,
+  month: 0,
+  endOfDate: 0
+})
 
 const formInline = reactive<RuleForm>({
   id: 0,
@@ -241,7 +253,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
       };
 
       if (formData.id !== 0) {
-        const { data, error } = await $supabase
+        await $supabase
           .from("finance_log")
           .update(formData)
           .eq("id", formData.id)
@@ -254,7 +266,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
       } else {
         delete formData.id;
 
-        const { data, error } = await $supabase
+        await $supabase
           .from("finance_log")
           .insert([formData])
           .select();
@@ -266,7 +278,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
       }
 
       formEl.resetFields();
-      getFinanceLog();
+      queryData();
 
       dialogFormVisible.value = false;
       loading.value = false;
@@ -278,24 +290,47 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
   });
 };
 
-async function getFinanceLog() {
+const queryData = async (page: number = 1) => {
   ElLoading.service(optionsLoading);
   loading.value = true;
 
-  const { data } = await $supabase
-    .from("finance_log")
-    .select()
-    .eq("date", dayjs().format())
-    .order("created_at", { ascending: true });
+  if(dateFilter.value.year > 0) {
+    const { start, end } = getRangePage(page)
+    const { data, count } = await $supabase
+      .from("finance_log")
+      .select("*", { count: "exact" })
+      .range(start, end)
+      .gte("date", `${dateFilter.value.year}-${dateFilter.value.month}-01`)
+      .lte("date", `${dateFilter.value.year}-${dateFilter.value.month}-${dateFilter.value.endOfDate}`)
+      .order("date", { ascending: false });
 
-  fetchData.value = data;
-  byDate.value = groupBy(data, "date");
+    totalRecord.value = count;
+    fetchData.value = data;
+  } else {
+    const { start, end } = getRangePage(page)
+    const { data, count } = await $supabase
+      .from("finance_log")
+      .select("*", { count: "exact" })
+      .range(start, end)
+      .order("date", { ascending: false });
 
-  handleCurrentChange(0);
+    totalRecord.value = count;
+    fetchData.value = data;
+  }
 
   loading.value = false;
   ElLoading.service().close();
 }
+
+const getRangePage = (val: number) => {
+  const start = val === 0 ? 0 : (val - 1) * 10;
+  const end = start + 9;
+
+  return {
+    start,
+    end
+  }
+};
 
 const editRecord = (data: RuleForm) => {
   formInline.id = data.id;
@@ -327,13 +362,19 @@ const openDialog = () => {
   dialogFormVisible.value = true;
 };
 
-const handleCurrentChange = (val: number) => {
-  const start = val === 0 ? 0 : (val - 1) * 10;
-  const end = start + 10;
-  statisticalData.value = fetchData.value.slice(start, end);
-};
+const handleSelectMonth = (date: any) => {
+  const month = dayjs(date).get('month') + 1;
+  const year = dayjs(date).get('year');
+  const endOfDate = dayjs(date).endOf('month').get('date');
+
+  dateFilter.value.year = year
+  dateFilter.value.month = month
+  dateFilter.value.endOfDate = endOfDate
+
+  queryData();
+}
 
 onMounted(() => {
-  getFinanceLog();
+  queryData();
 });
 </script>
