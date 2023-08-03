@@ -6,7 +6,6 @@
           Thêm thống kê
         </el-button>
       </div>
-      <FilterByDate />
       <el-card class="mt-5 max-w-fit mx-auto">
         <el-date-picker
           v-model="monthSelected"
@@ -136,7 +135,6 @@
 import type { FormInstance, FormRules } from "element-plus";
 import { COLOR_BTN } from "~/constants";
 import { ElLoading } from "element-plus";
-// import { groupBy } from "lodash";
 
 const { $supabase } = useNuxtApp();
 const dayjs = useDayjs();
@@ -294,30 +292,24 @@ const queryData = async (page: number = 1) => {
   ElLoading.service(optionsLoading);
   loading.value = true;
 
+  const { start, end } = getRangePage(page)
+  let query = $supabase
+    .from("finance_log")
+    .select("*", { count: "exact" })
+    .range(start, end)
+    .order("date", { ascending: false })
+
   if(dateFilter.value.year > 0) {
-    const { start, end } = getRangePage(page)
-    const { data, count } = await $supabase
-      .from("finance_log")
-      .select("*", { count: "exact" })
-      .range(start, end)
-      .gte("date", `${dateFilter.value.year}-${dateFilter.value.month}-01`)
-      .lte("date", `${dateFilter.value.year}-${dateFilter.value.month}-${dateFilter.value.endOfDate}`)
-      .order("date", { ascending: false });
-
-    totalRecord.value = count;
-    fetchData.value = data;
-  } else {
-    const { start, end } = getRangePage(page)
-    const { data, count } = await $supabase
-      .from("finance_log")
-      .select("*", { count: "exact" })
-      .range(start, end)
-      .order("date", { ascending: false });
-
-    totalRecord.value = count;
-    fetchData.value = data;
+    query = query
+    .gte("date", `${dateFilter.value.year}-${dateFilter.value.month}-01`)
+    .lte("date", `${dateFilter.value.year}-${dateFilter.value.month}-${dateFilter.value.endOfDate}`)
   }
 
+  const { data, count} = await query;
+
+  totalRecord.value = count;
+  fetchData.value = data;
+  
   loading.value = false;
   ElLoading.service().close();
 }

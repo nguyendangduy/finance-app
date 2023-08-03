@@ -1,9 +1,9 @@
 <template>
   <div class="flex items-center">
-    <NuxtLink :to="`/date/${date}`" class="flex items-center">
+    <span class="flex items-center">
       <img src="/calendar.png" alt="calendar" width="25" class="mr-2" />
       <p class="font-medium">{{ dayjs(date).format("DD/MM/YYYY") }}</p>
-    </NuxtLink>
+    </span>
     <NuxtLink to="/dating">
       <svg v-if="dating" class="heart ml-2" viewBox="0 0 32 29.6">
         <path
