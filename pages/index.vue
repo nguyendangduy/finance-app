@@ -6,6 +6,7 @@
           Thêm thống kê
         </el-button>
       </div>
+      <el-divider content-position="center">Lọc theo tháng</el-divider>
       <el-card class="mt-5 max-w-fit mx-auto">
         <el-date-picker
           v-model="monthSelected"
